@@ -1,0 +1,65 @@
+import type { ExerciseCategory, ExerciseSet, PointsFormula } from '@/types/challenge';
+import { EXERCISES } from '@/lib/constants';
+
+/**
+ * Points per rep at a given weight using standard formula:
+ *   pts = max(1, 1 + floor((weight - 30) / 10))
+ *
+ * Examples:
+ *   30 lbs → 1 pt
+ *   35 lbs → 1 pt  (floor((35-30)/10) = 0)
+ *   40 lbs → 2 pts
+ *   45 lbs → 2 pts  (floor((45-30)/10) = 1)
+ *   50 lbs → 3 pts
+ */
+export function ptsPerRep(weightLbs: number): number {
+  return Math.max(1, 1 + Math.floor((weightLbs - 30) / 10));
+}
+
+/**
+ * Score a single set.
+ *
+ * @param reps          Number of reps
+ * @param weightLeft    Weight of left dumbbell (or single weight) in lbs
+ * @param weightRight   Weight of right dumbbell in lbs (ignored if !isTwoDumbbell)
+ * @param isTwoDumbbell Whether both dumbbells are used (scored independently)
+ * @param formula       'standard' or 'pullup' (2 pts/rep flat)
+ */
+export function scoreSet(
+  reps: number,
+  weightLeft: number,
+  weightRight: number,
+  isTwoDumbbell: boolean,
+  formula: PointsFormula
+): number {
+  if (reps <= 0) return 0;
+
+  if (formula === 'pullup') {
+    return reps * 2;
+  }
+
+  if (isTwoDumbbell) {
+    return reps * (ptsPerRep(weightLeft) + ptsPerRep(weightRight));
+  }
+
+  return reps * ptsPerRep(weightLeft);
+}
+
+/** Score an array of sets. */
+export function scoreSets(sets: ExerciseSet[]): number {
+  return sets.reduce((total, set) => {
+    const formula = EXERCISES[set.category].pointsFormula;
+    return total + scoreSet(set.reps, set.weightLeft, set.weightRight, set.isTwoDumbbell, formula);
+  }, 0);
+}
+
+/** Sum points for a specific category. */
+export function categoryPoints(sets: ExerciseSet[], category: ExerciseCategory): number {
+  return scoreSets(sets.filter((s) => s.category === category));
+}
+
+/** Re-score a set in place (returns new points value). */
+export function rescore(set: Omit<ExerciseSet, 'points'>): number {
+  const formula = EXERCISES[set.category].pointsFormula;
+  return scoreSet(set.reps, set.weightLeft, set.weightRight, set.isTwoDumbbell, formula);
+}

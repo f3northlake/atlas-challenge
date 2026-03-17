@@ -1,0 +1,67 @@
+import type { ExerciseCategory, ExerciseCategoryConfig } from '@/types/challenge';
+
+// Update this list with actual F3 Northlake AO names before launch
+export const AO_LIST = [
+  'The Gravel Pit',
+  'The Forge',
+  'The Foundry',
+  'The Asylum',
+  'The Mill',
+  'Other',
+] as const;
+
+export const EXERCISES: Record<ExerciseCategory, ExerciseCategoryConfig> = {
+  core: {
+    label: 'Core',
+    emoji: '💪',
+    types: ['BBSU', 'WWII', 'WWIII'],
+    pointsFormula: 'standard',
+    isTwoDumbbell: false,
+    fixedWeight: 30,
+    description: 'BBSU (with kewpon), WWII, or WWIII — kewpon = 30 lbs (1 pt/rep)',
+  },
+  chest: {
+    label: 'Chest — Bench Press',
+    emoji: '🏋️',
+    types: ['Barbell', 'Dumbbell', 'Machine / Cable', 'Other'],
+    pointsFormula: 'standard',
+    isTwoDumbbell: true,
+    description: 'Any bench variation — each dumbbell scored separately',
+  },
+  back: {
+    label: 'Back — Pull Ups',
+    emoji: '⬆️',
+    types: ['Pull Up', 'Chin Up', 'Neutral Grip Pull Up'],
+    pointsFormula: 'pullup',
+    isTwoDumbbell: false,
+    fixedWeight: 0,
+    description: '2 pts per rep — no weight needed',
+  },
+  biceps: {
+    label: 'Biceps — Curls',
+    emoji: '💪',
+    types: ['Standard Curl', 'Hammer Curl', 'Preacher Curl', 'Concentration Curl', 'Other'],
+    pointsFormula: 'standard',
+    isTwoDumbbell: true,
+    description: 'Any curl variation — each dumbbell scored separately',
+  },
+  triceps: {
+    label: 'Triceps — Extension',
+    emoji: '🔱',
+    types: ['Overhead Extension', 'Pushdown (Cable)', 'Skull Crusher', 'Kickback', 'Other'],
+    pointsFormula: 'standard',
+    isTwoDumbbell: false,
+    weightToggle: true,
+    description: 'Any tricep extension — toggle single or double dumbbell',
+  },
+};
+
+export const EXERCISE_CATEGORIES = Object.keys(EXERCISES) as ExerciseCategory[];
+
+// Common dumbbell/weight increments in lbs
+export const WEIGHT_OPTIONS = [
+  10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100,
+];
+
+export const DEFAULT_WEIGHT = 30;
+export const WEIGHT_STEP = 5;
