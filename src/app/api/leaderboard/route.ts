@@ -1,8 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getLeaderboardData } from '@/lib/sheets';
 
-// Cache for 60 seconds so the leaderboard isn't hammered on every load
-export const revalidate = 60;
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {

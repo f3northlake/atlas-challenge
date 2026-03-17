@@ -1,28 +1,15 @@
 import Link from 'next/link';
 import LeaderboardTable from '@/components/LeaderboardTable';
-import type { LeaderboardEntry, AOEntry } from '@/types/challenge';
+import { getLeaderboardData } from '@/lib/sheets';
 
-// Revalidate every 60 seconds
-export const revalidate = 60;
-
-async function fetchLeaderboard(): Promise<{ individuals: LeaderboardEntry[]; aos: AOEntry[] }> {
-  // Use absolute URL for server-side fetch in Next.js
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL ?? 'http://localhost:3000';
-  const res = await fetch(`${baseUrl}/api/leaderboard`, { next: { revalidate: 60 } });
-
-  if (!res.ok) {
-    throw new Error('Failed to fetch leaderboard');
-  }
-
-  return res.json();
-}
+export const dynamic = 'force-dynamic';
 
 export default async function LeaderboardPage() {
-  let data: { individuals: LeaderboardEntry[]; aos: AOEntry[] } = { individuals: [], aos: [] };
+  let data = { individuals: [] as Awaited<ReturnType<typeof getLeaderboardData>>['individuals'], aos: [] as Awaited<ReturnType<typeof getLeaderboardData>>['aos'] };
   let error: string | null = null;
 
   try {
-    data = await fetchLeaderboard();
+    data = await getLeaderboardData();
   } catch {
     error = 'Could not load leaderboard. Check back soon.';
   }
@@ -31,8 +18,8 @@ export default async function LeaderboardPage() {
     <>
       <div className="mb-4 flex items-start justify-between">
         <div>
-          <h1 className="text-2xl font-black text-f3navy">Leaderboard</h1>
-          <p className="text-gray-500 text-sm mt-0.5">Atlas Challenge standings</p>
+          <h1 className="text-2xl font-black text-f3navy dark:text-white">Leaderboard</h1>
+          <p className="text-gray-500 dark:text-gray-400 text-sm mt-0.5">Atlas Challenge standings</p>
         </div>
         <Link
           href="/"

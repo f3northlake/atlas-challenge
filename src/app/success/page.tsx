@@ -11,7 +11,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   return (
     <div className="text-center py-12">
       <div className="text-6xl mb-4">💪</div>
-      <h1 className="text-3xl font-black text-f3navy mb-2">EH Yeah!</h1>
+      <h1 className="text-3xl font-black text-f3navy dark:text-white mb-2">EH Yeah!</h1>
       <p className="text-gray-600 mb-1">Your points have been recorded.</p>
       {points > 0 && (
         <p className="text-5xl font-black text-f3yellow my-6">

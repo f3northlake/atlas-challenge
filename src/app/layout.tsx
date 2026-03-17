@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter } from 'next/font/google';
 import './globals.css';
 import Link from 'next/link';
+import ThemeToggle from '@/components/ThemeToggle';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -16,8 +17,12 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
-      <body className={`${inter.className} bg-gray-100 min-h-screen`}>
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        {/* Apply saved theme before first paint to avoid flash */}
+        <script dangerouslySetInnerHTML={{ __html: `(function(){try{var t=localStorage.getItem('theme');if(t==='dark'||(t===null&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark')}}catch(e){}})()` }} />
+      </head>
+      <body className={`${inter.className} bg-gray-100 dark:bg-gray-900 min-h-screen`}>
         {/* Top nav */}
         <header className="bg-f3navy text-white sticky top-0 z-20 shadow-md">
           <div className="max-w-lg mx-auto px-4 py-3 flex items-center justify-between">
@@ -28,9 +33,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <span className="text-gray-300 text-xs font-normal">Challenge</span>
               </span>
             </Link>
-            <nav className="flex gap-4 text-sm">
+            <nav className="flex items-center gap-4 text-sm">
               <Link href="/" className="hover:text-f3yellow transition-colors">Log</Link>
               <Link href="/leaderboard" className="hover:text-f3yellow transition-colors">Leaderboard</Link>
+              <ThemeToggle />
             </nav>
           </div>
         </header>

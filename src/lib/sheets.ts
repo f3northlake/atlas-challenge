@@ -3,7 +3,7 @@ import { google } from 'googleapis';
 import type { SheetsRow, LeaderboardEntry, AOEntry } from '@/types/challenge';
 
 const SUBMISSIONS_RANGE = 'Submissions!A:K';
-const SUBMISSIONS_RANGE_DATA = 'Submissions!A2:K'; // skip header row
+const SUBMISSIONS_RANGE_DATA = 'Submissions!A2:K'; // read all rows, filter non-data below
 
 function getAuthClient() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
@@ -70,7 +70,8 @@ export async function getLeaderboardData(): Promise<{
   const aoMap = new Map<string, { totalPoints: number; paxSet: Set<string> }>();
 
   for (const row of rows) {
-    if (!row[2] || !row[3]) continue; // skip rows without PAX name or AO
+    // Skip header row or any row without a numeric total in column E
+    if (!row[2] || !row[3] || isNaN(Number(row[4]))) continue;
 
     const paxName = String(row[2]).trim();
     const homeAO = String(row[3]).trim();

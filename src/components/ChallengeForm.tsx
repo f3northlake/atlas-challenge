@@ -70,7 +70,6 @@ export default function ChallengeForm() {
 
   const { register, handleSubmit, control, formState: { errors } } = methods;
 
-  // Watch all set arrays to drive live point previews
   const coreSets = useWatch({ control, name: 'coreSets' }) as ExerciseSet[];
   const chestSets = useWatch({ control, name: 'chestSets' }) as ExerciseSet[];
   const backSets = useWatch({ control, name: 'backSets' }) as ExerciseSet[];
@@ -89,14 +88,13 @@ export default function ChallengeForm() {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    // Build flat sets array
     const allFormSets = [
       ...data.coreSets,
       ...data.chestSets,
       ...data.backSets,
       ...data.bicepsSets,
       ...data.tricepsSets,
-    ].filter((s) => s.reps > 0); // only send sets where reps were entered
+    ].filter((s) => s.reps > 0);
 
     if (allFormSets.length === 0) {
       setSubmitError('Please enter at least one set with reps before submitting.');
@@ -135,18 +133,18 @@ export default function ChallengeForm() {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="pb-28">
         {/* PAX Info */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 mb-4">
-          <h2 className="font-bold text-f3navy text-sm uppercase tracking-wide mb-3">Your Info</h2>
+        <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm p-4 mb-4">
+          <h2 className="font-bold text-f3navy dark:text-gray-100 text-sm uppercase tracking-wide mb-3">Your Info</h2>
 
           <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               F3 Name <span className="text-red-500">*</span>
             </label>
             <input
               {...register('paxName', { required: 'F3 name is required' })}
               type="text"
               placeholder="e.g. Hammerhead"
-              className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-f3yellow"
+              className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-f3yellow"
             />
             {errors.paxName && (
               <p className="text-red-500 text-xs mt-1">{errors.paxName.message}</p>
@@ -154,12 +152,12 @@ export default function ChallengeForm() {
           </div>
 
           <div className="mb-3">
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Home AO <span className="text-red-500">*</span>
             </label>
             <select
               {...register('homeAO', { required: 'Home AO is required' })}
-              className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-f3yellow"
+              className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-3 py-2.5 text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-f3yellow"
             >
               <option value="">Select your AO...</option>
               {AO_LIST.map((ao) => (
@@ -172,20 +170,20 @@ export default function ChallengeForm() {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Date <span className="text-red-500">*</span>
             </label>
             <input
               {...register('date', { required: 'Date is required' })}
               type="date"
-              className="w-full border border-gray-300 rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-f3yellow"
+              className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-md px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-f3yellow"
             />
           </div>
         </div>
 
         {/* Scoring reminder */}
-        <div className="bg-f3yellow/10 border border-f3yellow rounded-xl p-3 mb-4 text-xs text-gray-700">
-          <p className="font-bold text-f3navy mb-1">Scoring Reminder</p>
+        <div className="bg-f3yellow/10 dark:bg-f3yellow/5 border border-f3yellow dark:border-f3yellow/50 rounded-xl p-3 mb-4 text-xs text-gray-700 dark:text-gray-300">
+          <p className="font-bold text-f3navy dark:text-f3yellow mb-1">Scoring Reminder</p>
           <ul className="space-y-0.5 list-disc list-inside">
             <li>30 lbs = 1 pt/rep &nbsp;|&nbsp; 40 lbs = 2 pts &nbsp;|&nbsp; 50 lbs = 3 pts</li>
             <li>Two-dumbbell exercises: each DB scored separately per rep</li>
@@ -195,7 +193,7 @@ export default function ChallengeForm() {
         </div>
 
         {/* Exercise Categories */}
-        <h2 className="font-bold text-f3navy text-sm uppercase tracking-wide mb-2">Log Your Reps</h2>
+        <h2 className="font-bold text-f3navy dark:text-gray-100 text-sm uppercase tracking-wide mb-2">Log Your Reps</h2>
         <ExerciseCategoryCard category="core" categoryPoints={corePoints} />
         <ExerciseCategoryCard category="chest" categoryPoints={chestPoints} />
         <ExerciseCategoryCard category="back" categoryPoints={backPoints} />
@@ -204,7 +202,7 @@ export default function ChallengeForm() {
 
         {/* Submit */}
         {submitError && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3 text-sm text-red-700">
+          <div className="bg-red-50 dark:bg-red-900/30 border border-red-200 dark:border-red-700 rounded-lg p-3 mb-3 text-sm text-red-700 dark:text-red-400">
             {submitError}
           </div>
         )}
@@ -218,7 +216,6 @@ export default function ChallengeForm() {
         </button>
       </form>
 
-      {/* Sticky live points bar */}
       <PointsPreview
         core={corePoints}
         chest={chestPoints}

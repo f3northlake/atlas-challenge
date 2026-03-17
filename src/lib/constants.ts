@@ -2,12 +2,15 @@ import type { ExerciseCategory, ExerciseCategoryConfig } from '@/types/challenge
 
 // Update this list with actual F3 Northlake AO names before launch
 export const AO_LIST = [
-  'The Gravel Pit',
-  'The Forge',
-  'The Foundry',
-  'The Asylum',
-  'The Mill',
-  'Other',
+  'Dog Pound',
+  'Eagles Nest',
+  'Hacksaw',
+  'Hurt Locker',
+  'The Frontier',
+  'The Quad',
+  'The Reaper',
+  'The Sandlot',
+  'Uncle Bills Porch',
 ] as const;
 
 export const EXERCISES: Record<ExerciseCategory, ExerciseCategoryConfig> = {

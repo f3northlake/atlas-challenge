@@ -35,7 +35,6 @@ export default function ExerciseSet({ category, index, onRemove, canRemove }: Ex
   const isTwoDumbbell = (useWatch({ control, name: `${fieldBase}.isTwoDumbbell` as never }) as unknown) as boolean;
   const exerciseType = useWatch({ control, name: `${fieldBase}.exerciseType` as never }) as string;
 
-  // Recompute live points whenever inputs change
   const livePoints = scoreSet(
     Number(reps) || 0,
     Number(weightLeft) || 0,
@@ -44,7 +43,6 @@ export default function ExerciseSet({ category, index, onRemove, canRemove }: Ex
     config.pointsFormula
   );
 
-  // Update stored points field whenever inputs change
   useEffect(() => {
     setValue(`${fieldBase}.points` as never, livePoints as never);
   }, [livePoints, fieldBase, setValue]);
@@ -58,7 +56,6 @@ export default function ExerciseSet({ category, index, onRemove, canRemove }: Ex
     const next = Math.max(0, current + delta);
     setValue(field as never, next as never);
 
-    // Keep weights in sync if single dumbbell mode
     if (!isTwoDumbbell && side === 'left') {
       setValue(`${fieldBase}.weightRight` as never, next as never);
     }
@@ -67,16 +64,15 @@ export default function ExerciseSet({ category, index, onRemove, canRemove }: Ex
   function handleToggleTwoDb(checked: boolean) {
     setValue(`${fieldBase}.isTwoDumbbell` as never, checked as never);
     if (!checked) {
-      // sync right to left when switching back to single
       setValue(`${fieldBase}.weightRight` as never, weightLeft as never);
     }
   }
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3 mb-2">
+    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg p-3 mb-2">
       {/* Header row */}
       <div className="flex items-center justify-between mb-2 gap-2">
-        <span className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Set {index + 1}</span>
+        <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Set {index + 1}</span>
         <div className="flex items-center gap-2">
           <span className="text-f3yellow font-bold text-sm bg-f3navy rounded px-2 py-0.5">
             {livePoints} pts
@@ -96,35 +92,33 @@ export default function ExerciseSet({ category, index, onRemove, canRemove }: Ex
 
       {/* Exercise type selector */}
       <div className="mb-2">
-        <label className="block text-xs text-gray-500 mb-0.5">Exercise</label>
+        <label className="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Exercise</label>
         <select
           {...register(`${fieldBase}.exerciseType` as never)}
-          className="w-full border border-gray-300 rounded-md px-2 py-2 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-f3yellow"
+          className="w-full border border-gray-300 dark:border-gray-600 rounded-md px-2 py-2 text-sm bg-white dark:bg-gray-700 dark:text-white focus:outline-none focus:ring-2 focus:ring-f3yellow"
         >
           {config.types.map((t) => (
             <option key={t} value={t}>{t}</option>
           ))}
         </select>
-        {/* Suppress unused variable warning */}
         <input type="hidden" value={exerciseType} readOnly />
       </div>
 
       {/* Reps input */}
       <div className="mb-2">
-        <label className="block text-xs text-gray-500 mb-0.5">Reps</label>
+        <label className="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">Reps</label>
         <input
           {...register(`${fieldBase}.reps` as never, { valueAsNumber: true })}
           type="text"
           inputMode="numeric"
           placeholder="0"
-          className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-f3yellow"
+          className="w-full border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-f3yellow"
         />
       </div>
 
       {/* Weight inputs */}
       {!isPullup && !isFixedWeight && (
         <>
-          {/* Two-DB toggle for triceps */}
           {config.weightToggle && (
             <div className="flex items-center gap-2 mb-2">
               <input
@@ -134,13 +128,12 @@ export default function ExerciseSet({ category, index, onRemove, canRemove }: Ex
                 onChange={(e) => handleToggleTwoDb(e.target.checked)}
                 className="accent-f3yellow"
               />
-              <label htmlFor={`${fieldBase}-two-db`} className="text-xs text-gray-600">
+              <label htmlFor={`${fieldBase}-two-db`} className="text-xs text-gray-600 dark:text-gray-400">
                 Two dumbbells
               </label>
             </div>
           )}
 
-          {/* Weight input(s) */}
           <div className={`grid gap-2 ${isTwoDumbbell ? 'grid-cols-2' : 'grid-cols-1'}`}>
             <WeightInput
               label={isTwoDumbbell ? 'Left DB (lbs)' : 'Weight (lbs)'}
@@ -169,14 +162,12 @@ export default function ExerciseSet({ category, index, onRemove, canRemove }: Ex
         </>
       )}
 
-      {/* Fixed weight display */}
       {isFixedWeight && config.fixedWeight! > 0 && (
-        <p className="text-xs text-gray-400 mt-1">Kewpon = 30 lbs (1 pt/rep)</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Kewpon = 30 lbs (1 pt/rep)</p>
       )}
 
-      {/* Pull up hint */}
       {isPullup && (
-        <p className="text-xs text-gray-400 mt-1">2 pts per rep — no weight needed</p>
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">2 pts per rep — no weight needed</p>
       )}
     </div>
   );
@@ -196,12 +187,12 @@ interface WeightInputProps {
 function WeightInput({ label, value, onAdjust, fieldName, register, onChange }: WeightInputProps) {
   return (
     <div>
-      <label className="block text-xs text-gray-500 mb-0.5">{label}</label>
+      <label className="block text-xs text-gray-500 dark:text-gray-400 mb-0.5">{label}</label>
       <div className="flex items-center gap-1">
         <button
           type="button"
           onClick={() => onAdjust(-WEIGHT_STEP)}
-          className="w-9 h-9 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-base leading-none"
+          className="w-9 h-9 flex items-center justify-center rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold text-base leading-none"
         >
           −
         </button>
@@ -215,12 +206,12 @@ function WeightInput({ label, value, onAdjust, fieldName, register, onChange }: 
             onChange(isNaN(parsed) ? 0 : parsed);
           }}
           placeholder="30"
-          className="flex-1 text-center border border-gray-300 rounded-md py-2 text-sm focus:outline-none focus:ring-2 focus:ring-f3yellow"
+          className="flex-1 text-center border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500 rounded-md py-2 text-sm focus:outline-none focus:ring-2 focus:ring-f3yellow"
         />
         <button
           type="button"
           onClick={() => onAdjust(WEIGHT_STEP)}
-          className="w-9 h-9 flex items-center justify-center rounded-md bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold text-base leading-none"
+          className="w-9 h-9 flex items-center justify-center rounded-md bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 font-bold text-base leading-none"
         >
           +
         </button>
