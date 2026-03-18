@@ -29,6 +29,7 @@ export interface FormValues {
   backSets: SetFormRow[];
   bicepsSets: SetFormRow[];
   tricepsSets: SetFormRow[];
+  legsSets: SetFormRow[];
 }
 
 function makeDefaultSet(category: keyof typeof EXERCISES): SetFormRow {
@@ -65,6 +66,7 @@ export default function ChallengeForm() {
       backSets: [makeDefaultSet('back')],
       bicepsSets: [makeDefaultSet('biceps')],
       tricepsSets: [makeDefaultSet('triceps')],
+      legsSets: [makeDefaultSet('legs')],
     },
   });
 
@@ -75,14 +77,16 @@ export default function ChallengeForm() {
   const backSets = useWatch({ control, name: 'backSets' }) as ExerciseSet[];
   const bicepsSets = useWatch({ control, name: 'bicepsSets' }) as ExerciseSet[];
   const tricepsSets = useWatch({ control, name: 'tricepsSets' }) as ExerciseSet[];
+  const legsSets = useWatch({ control, name: 'legsSets' }) as ExerciseSet[];
 
-  const allSets = [...coreSets, ...chestSets, ...backSets, ...bicepsSets, ...tricepsSets];
+  const allSets = [...coreSets, ...chestSets, ...backSets, ...bicepsSets, ...tricepsSets, ...legsSets];
 
   const corePoints = categoryPoints(allSets, 'core');
   const chestPoints = categoryPoints(allSets, 'chest');
   const backPoints = categoryPoints(allSets, 'back');
   const bicepsPoints = categoryPoints(allSets, 'biceps');
   const tricepsPoints = categoryPoints(allSets, 'triceps');
+  const legsPoints = categoryPoints(allSets, 'legs');
 
   async function onSubmit(data: FormValues) {
     setIsSubmitting(true);
@@ -94,6 +98,7 @@ export default function ChallengeForm() {
       ...data.backSets,
       ...data.bicepsSets,
       ...data.tricepsSets,
+      ...data.legsSets,
     ].filter((s) => s.reps > 0);
 
     if (allFormSets.length === 0) {
@@ -199,6 +204,7 @@ export default function ChallengeForm() {
         <ExerciseCategoryCard category="back" categoryPoints={backPoints} />
         <ExerciseCategoryCard category="biceps" categoryPoints={bicepsPoints} />
         <ExerciseCategoryCard category="triceps" categoryPoints={tricepsPoints} />
+        <ExerciseCategoryCard category="legs" categoryPoints={legsPoints} />
 
         {/* Submit */}
         {submitError && (
@@ -222,6 +228,7 @@ export default function ChallengeForm() {
         back={backPoints}
         biceps={bicepsPoints}
         triceps={tricepsPoints}
+        legs={legsPoints}
       />
     </FormProvider>
   );

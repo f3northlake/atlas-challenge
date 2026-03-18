@@ -45,6 +45,7 @@ export async function POST(request: NextRequest) {
       backPoints: categoryPoints(scoredSets, 'back'),
       bicepsPoints: categoryPoints(scoredSets, 'biceps'),
       tricepsPoints: categoryPoints(scoredSets, 'triceps'),
+      legsPoints: categoryPoints(scoredSets, 'legs'),
       rawSetsJson: JSON.stringify(scoredSets),
     };
 

@@ -2,7 +2,7 @@ import { z } from 'zod';
 
 export const ExerciseSetSchema = z.object({
   id: z.string().min(1),
-  category: z.enum(['core', 'chest', 'back', 'biceps', 'triceps']),
+  category: z.enum(['core', 'chest', 'back', 'biceps', 'triceps', 'legs']),
   exerciseType: z.string().min(1, 'Exercise type is required'),
   reps: z.number().int('Reps must be a whole number').min(1, 'Reps must be at least 1').max(10000),
   weightLeft: z.number().min(0).max(2000),

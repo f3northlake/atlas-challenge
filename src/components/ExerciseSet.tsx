@@ -21,6 +21,7 @@ const categoryFieldMap: Record<ExerciseCategory, keyof FormValues> = {
   back: 'backSets',
   biceps: 'bicepsSets',
   triceps: 'tricepsSets',
+  legs: 'legsSets',
 };
 
 export default function ExerciseSet({ category, index, onRemove, canRemove }: ExerciseSetProps) {

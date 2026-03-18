@@ -1,9 +1,9 @@
 import 'server-only';
 import { google } from 'googleapis';
-import type { SheetsRow, LeaderboardEntry, AOEntry } from '@/types/challenge';
+import type { SheetsRow, LeaderboardEntry, AOEntry, PaxSubmission, AOPaxEntry } from '@/types/challenge';
 
-const SUBMISSIONS_RANGE = 'Submissions!A:K';
-const SUBMISSIONS_RANGE_DATA = 'Submissions!A2:K'; // read all rows, filter non-data below
+const SUBMISSIONS_RANGE = 'Submissions!A:L';
+const SUBMISSIONS_RANGE_DATA = 'Submissions!A1:L'; // read all rows, filter non-data below
 
 function getAuthClient() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
@@ -38,6 +38,7 @@ export async function appendSubmissionRow(row: SheetsRow): Promise<void> {
     row.backPoints,
     row.bicepsPoints,
     row.tricepsPoints,
+    row.legsPoints,
     row.rawSetsJson,
   ];
 
@@ -65,7 +66,8 @@ export async function getLeaderboardData(): Promise<{
   const rows = response.data.values ?? [];
 
   // Columns: 0=timestamp, 1=date, 2=paxName, 3=homeAO, 4=totalPoints,
-  //          5=corePoints, 6=chestPoints, 7=backPoints, 8=bicepsPoints, 9=tricepsPoints
+  //          5=corePoints, 6=chestPoints, 7=backPoints, 8=bicepsPoints,
+  //          9=tricepsPoints, 10=legsPoints, 11=rawSetsJson
   const paxMap = new Map<string, LeaderboardEntry>();
   const aoMap = new Map<string, { totalPoints: number; paxSet: Set<string> }>();
 
@@ -81,6 +83,7 @@ export async function getLeaderboardData(): Promise<{
     const backPoints = Number(row[7]) || 0;
     const bicepsPoints = Number(row[8]) || 0;
     const tricepsPoints = Number(row[9]) || 0;
+    const legsPoints = Number(row[10]) || 0;
 
     // Aggregate by PAX
     const existing = paxMap.get(paxName);
@@ -91,6 +94,7 @@ export async function getLeaderboardData(): Promise<{
       existing.backPoints += backPoints;
       existing.bicepsPoints += bicepsPoints;
       existing.tricepsPoints += tricepsPoints;
+      existing.legsPoints += legsPoints;
       existing.submissionCount += 1;
     } else {
       paxMap.set(paxName, {
@@ -102,6 +106,7 @@ export async function getLeaderboardData(): Promise<{
         backPoints,
         bicepsPoints,
         tricepsPoints,
+        legsPoints,
         submissionCount: 1,
       });
     }
@@ -120,4 +125,82 @@ export async function getLeaderboardData(): Promise<{
     .sort((a, b) => b.totalPoints - a.totalPoints);
 
   return { individuals, aos };
+}
+
+/** Return all individual submissions for one PAX, sorted newest-first. */
+export async function getPaxSubmissions(paxName: string): Promise<PaxSubmission[]> {
+  const auth = getAuthClient();
+  const sheets = google.sheets({ version: 'v4', auth });
+
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: getSheetId(),
+    range: SUBMISSIONS_RANGE_DATA,
+  });
+
+  const rows = response.data.values ?? [];
+  const results: PaxSubmission[] = [];
+
+  for (const row of rows) {
+    if (!row[2] || !row[3] || isNaN(Number(row[4]))) continue;
+    if (String(row[2]).trim().toLowerCase() !== paxName.toLowerCase()) continue;
+
+    results.push({
+      date: String(row[1]),
+      totalPoints: Number(row[4]) || 0,
+      corePoints: Number(row[5]) || 0,
+      chestPoints: Number(row[6]) || 0,
+      backPoints: Number(row[7]) || 0,
+      bicepsPoints: Number(row[8]) || 0,
+      tricepsPoints: Number(row[9]) || 0,
+      legsPoints: Number(row[10]) || 0,
+    });
+  }
+
+  return results.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/** Return all PAX aggregated for one AO, sorted by total points descending. */
+export async function getAOData(aoName: string): Promise<AOPaxEntry[]> {
+  const auth = getAuthClient();
+  const sheets = google.sheets({ version: 'v4', auth });
+
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: getSheetId(),
+    range: SUBMISSIONS_RANGE_DATA,
+  });
+
+  const rows = response.data.values ?? [];
+  const paxMap = new Map<string, AOPaxEntry>();
+
+  for (const row of rows) {
+    if (!row[2] || !row[3] || isNaN(Number(row[4]))) continue;
+    if (String(row[3]).trim().toLowerCase() !== aoName.toLowerCase()) continue;
+
+    const paxName = String(row[2]).trim();
+    const existing = paxMap.get(paxName);
+    if (existing) {
+      existing.totalPoints   += Number(row[4]) || 0;
+      existing.corePoints    += Number(row[5]) || 0;
+      existing.chestPoints   += Number(row[6]) || 0;
+      existing.backPoints    += Number(row[7]) || 0;
+      existing.bicepsPoints  += Number(row[8]) || 0;
+      existing.tricepsPoints += Number(row[9]) || 0;
+      existing.legsPoints    += Number(row[10]) || 0;
+      existing.submissionCount += 1;
+    } else {
+      paxMap.set(paxName, {
+        paxName,
+        totalPoints:   Number(row[4]) || 0,
+        corePoints:    Number(row[5]) || 0,
+        chestPoints:   Number(row[6]) || 0,
+        backPoints:    Number(row[7]) || 0,
+        bicepsPoints:  Number(row[8]) || 0,
+        tricepsPoints: Number(row[9]) || 0,
+        legsPoints:    Number(row[10]) || 0,
+        submissionCount: 1,
+      });
+    }
+  }
+
+  return [...paxMap.values()].sort((a, b) => b.totalPoints - a.totalPoints);
 }

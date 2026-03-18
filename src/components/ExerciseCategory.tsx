@@ -13,6 +13,7 @@ const categoryFieldMap = {
   back: 'backSets',
   biceps: 'bicepsSets',
   triceps: 'tricepsSets',
+  legs: 'legsSets',
 } as const;
 
 interface ExerciseCategoryProps {

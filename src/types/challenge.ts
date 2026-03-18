@@ -1,4 +1,4 @@
-export type ExerciseCategory = 'core' | 'chest' | 'back' | 'biceps' | 'triceps';
+export type ExerciseCategory = 'core' | 'chest' | 'back' | 'biceps' | 'triceps' | 'legs';
 export type PointsFormula = 'standard' | 'pullup';
 
 export interface ExerciseSet {
@@ -43,6 +43,7 @@ export interface SheetsRow {
   backPoints: number;
   bicepsPoints: number;
   tricepsPoints: number;
+  legsPoints: number;
   rawSetsJson: string;
 }
 
@@ -55,6 +56,7 @@ export interface LeaderboardEntry {
   backPoints: number;
   bicepsPoints: number;
   tricepsPoints: number;
+  legsPoints: number;
   submissionCount: number;
 }
 
@@ -62,4 +64,27 @@ export interface AOEntry {
   ao: string;
   totalPoints: number;
   paxCount: number;
+}
+
+export interface AOPaxEntry {
+  paxName: string;
+  totalPoints: number;
+  corePoints: number;
+  chestPoints: number;
+  backPoints: number;
+  bicepsPoints: number;
+  tricepsPoints: number;
+  legsPoints: number;
+  submissionCount: number;
+}
+
+export interface PaxSubmission {
+  date: string;
+  totalPoints: number;
+  corePoints: number;
+  chestPoints: number;
+  backPoints: number;
+  bicepsPoints: number;
+  tricepsPoints: number;
+  legsPoints: number;
 }

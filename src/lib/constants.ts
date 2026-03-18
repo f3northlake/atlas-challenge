@@ -57,6 +57,15 @@ export const EXERCISES: Record<ExerciseCategory, ExerciseCategoryConfig> = {
     weightToggle: true,
     description: 'Any tricep extension — toggle single or double dumbbell',
   },
+  legs: {
+    label: 'Legs',
+    emoji: '🦵',
+    types: ['Goblet Squat', 'Lunge', 'Romanian Deadlift', 'Step Up', 'Bulgarian Split Squat', 'Other'],
+    pointsFormula: 'standard',
+    isTwoDumbbell: false,
+    weightToggle: true,
+    description: 'Any leg exercise — toggle single or double dumbbell',
+  },
 };
 
 export const EXERCISE_CATEGORIES = Object.keys(EXERCISES) as ExerciseCategory[];

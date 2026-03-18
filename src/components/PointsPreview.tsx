@@ -6,10 +6,11 @@ interface PointsPreviewProps {
   back: number;
   biceps: number;
   triceps: number;
+  legs: number;
 }
 
-export default function PointsPreview({ core, chest, back, biceps, triceps }: PointsPreviewProps) {
-  const total = core + chest + back + biceps + triceps;
+export default function PointsPreview({ core, chest, back, biceps, triceps, legs }: PointsPreviewProps) {
+  const total = core + chest + back + biceps + triceps + legs;
 
   return (
     <div className="sticky bottom-0 z-10 bg-f3navy border-t-2 border-f3yellow text-white">
@@ -20,6 +21,7 @@ export default function PointsPreview({ core, chest, back, biceps, triceps }: Po
           <span>Back: <strong className="text-white">{back}</strong></span>
           <span>Biceps: <strong className="text-white">{biceps}</strong></span>
           <span>Triceps: <strong className="text-white">{triceps}</strong></span>
+          <span>Legs: <strong className="text-white">{legs}</strong></span>
         </div>
         <div className="text-center text-f3yellow font-bold text-lg leading-none">
           TOTAL: {total} pts
