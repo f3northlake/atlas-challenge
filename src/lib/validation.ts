@@ -1,15 +1,42 @@
 import { z } from 'zod';
 
-export const ExerciseSetSchema = z.object({
-  id: z.string().min(1),
-  category: z.enum(['core', 'chest', 'back', 'biceps', 'triceps', 'legs']),
-  exerciseType: z.string().min(1, 'Exercise type is required'),
-  reps: z.number().int('Reps must be a whole number').min(1, 'Reps must be at least 1').max(10000),
-  weightLeft: z.number().min(0).max(2000),
-  weightRight: z.number().min(0).max(2000),
-  isTwoDumbbell: z.boolean(),
-  points: z.number(), // client-computed; server re-validates and overwrites
-});
+// Categories where no weight is entered (pullup) or weight is fixed by the rules (core kewpon)
+const NO_MIN_WEIGHT_CATEGORIES = new Set(['back', 'core']);
+
+export const ExerciseSetSchema = z
+  .object({
+    id: z.string().min(1),
+    category: z.enum(['core', 'chest', 'back', 'biceps', 'triceps', 'legs']),
+    exerciseType: z.string().min(1, 'Exercise type is required'),
+    reps: z.number().int('Reps must be a whole number').min(1, 'Reps must be at least 1').max(10000),
+    weightLeft: z.number().min(0).max(2000),
+    weightRight: z.number().min(0).max(2000),
+    isTwoDumbbell: z.boolean(),
+    points: z.number(), // client-computed; server re-validates and overwrites
+  })
+  .superRefine((set, ctx) => {
+    if (NO_MIN_WEIGHT_CATEGORIES.has(set.category)) return;
+    if (set.weightLeft < 30) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.too_small,
+        minimum: 30,
+        type: 'number',
+        inclusive: true,
+        message: 'Minimum weight is 30 lbs',
+        path: ['weightLeft'],
+      });
+    }
+    if (set.isTwoDumbbell && set.weightRight < 30) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.too_small,
+        minimum: 30,
+        type: 'number',
+        inclusive: true,
+        message: 'Minimum weight is 30 lbs',
+        path: ['weightRight'],
+      });
+    }
+  });
 
 export const SubmissionSchema = z.object({
   paxName: z.string().min(1, 'PAX name is required').max(100),

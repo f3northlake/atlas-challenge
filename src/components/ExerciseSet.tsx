@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useFormContext, useWatch } from 'react-hook-form';
 import { scoreSet } from '@/lib/scoring';
-import { EXERCISES, WEIGHT_STEP } from '@/lib/constants';
+import { EXERCISES, WEIGHT_STEP, MIN_WEIGHT } from '@/lib/constants';
 import type { ExerciseCategory } from '@/types/challenge';
 import type { FormValues } from '@/components/ChallengeForm';
 
@@ -54,7 +54,7 @@ export default function ExerciseSet({ category, index, onRemove, canRemove }: Ex
   function adjustWeight(side: 'left' | 'right', delta: number) {
     const field = side === 'left' ? `${fieldBase}.weightLeft` : `${fieldBase}.weightRight`;
     const current = side === 'left' ? Number(weightLeft) : Number(weightRight);
-    const next = Math.max(0, current + delta);
+    const next = Math.max(MIN_WEIGHT, current + delta);
     setValue(field as never, next as never);
 
     if (!isTwoDumbbell && side === 'left') {
@@ -204,7 +204,7 @@ function WeightInput({ label, value, onAdjust, fieldName, register, onChange }: 
           value={value === 0 ? '' : value}
           onChange={(e) => {
             const parsed = parseInt(e.target.value, 10);
-            onChange(isNaN(parsed) ? 0 : parsed);
+            onChange(isNaN(parsed) ? MIN_WEIGHT : Math.max(MIN_WEIGHT, parsed));
           }}
           placeholder="30"
           className="flex-1 text-center border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500 rounded-md py-2 text-sm focus:outline-none focus:ring-2 focus:ring-f3yellow"

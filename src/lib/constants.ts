@@ -26,10 +26,10 @@ export const EXERCISES: Record<ExerciseCategory, ExerciseCategoryConfig> = {
   chest: {
     label: 'Chest — Bench Press',
     emoji: '🏋️',
-    types: ['Barbell', 'Dumbbell', 'Machine / Cable', 'Other'],
+    types: ['Dumbbell', 'Kettlebell'],
     pointsFormula: 'standard',
     isTwoDumbbell: true,
-    description: 'Any bench variation — each dumbbell scored separately',
+    description: 'Any bench variation (incline, flat, decline) — each dumbbell scored separately',
   },
   back: {
     label: 'Back — Pull Ups',
@@ -43,7 +43,7 @@ export const EXERCISES: Record<ExerciseCategory, ExerciseCategoryConfig> = {
   biceps: {
     label: 'Biceps — Curls',
     emoji: '💪',
-    types: ['Standard Curl', 'Hammer Curl', 'Preacher Curl', 'Concentration Curl', 'Other'],
+    types: ['Standard Curl', 'Hammer Curl', 'Concentration Curl', 'Other'],
     pointsFormula: 'standard',
     isTwoDumbbell: true,
     description: 'Any curl variation — each dumbbell scored separately',
@@ -51,7 +51,7 @@ export const EXERCISES: Record<ExerciseCategory, ExerciseCategoryConfig> = {
   triceps: {
     label: 'Triceps — Extension',
     emoji: '🔱',
-    types: ['Overhead Extension', 'Pushdown (Cable)', 'Skull Crusher', 'Kickback', 'Other'],
+    types: ['Overhead Extension', 'Skull Crusher', 'Kickback', 'Other'],
     pointsFormula: 'standard',
     isTwoDumbbell: false,
     weightToggle: true,
@@ -76,4 +76,5 @@ export const WEIGHT_OPTIONS = [
 ];
 
 export const DEFAULT_WEIGHT = 30;
+export const MIN_WEIGHT = 30;
 export const WEIGHT_STEP = 5;
