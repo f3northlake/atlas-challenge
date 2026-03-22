@@ -27,7 +27,8 @@ export async function POST(request: NextRequest) {
         set.weightLeft,
         set.weightRight,
         set.isTwoDumbbell,
-        EXERCISES[set.category].pointsFormula
+        EXERCISES[set.category].pointsFormula,
+        set.multiplier ?? 1
       ),
     }));
 

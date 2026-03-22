@@ -30,26 +30,28 @@ export function scoreSet(
   weightLeft: number,
   weightRight: number,
   isTwoDumbbell: boolean,
-  formula: PointsFormula
+  formula: PointsFormula,
+  multiplier = 1
 ): number {
   if (reps <= 0) return 0;
 
+  let base: number;
   if (formula === 'pullup') {
-    return reps * 2;
+    base = reps * 2;
+  } else if (isTwoDumbbell) {
+    base = reps * (ptsPerRep(weightLeft) + ptsPerRep(weightRight));
+  } else {
+    base = reps * ptsPerRep(weightLeft);
   }
 
-  if (isTwoDumbbell) {
-    return reps * (ptsPerRep(weightLeft) + ptsPerRep(weightRight));
-  }
-
-  return reps * ptsPerRep(weightLeft);
+  return base * multiplier;
 }
 
 /** Score an array of sets. */
 export function scoreSets(sets: ExerciseSet[]): number {
   return sets.reduce((total, set) => {
     const formula = EXERCISES[set.category].pointsFormula;
-    return total + scoreSet(set.reps, set.weightLeft, set.weightRight, set.isTwoDumbbell, formula);
+    return total + scoreSet(set.reps, set.weightLeft, set.weightRight, set.isTwoDumbbell, formula, set.multiplier ?? 1);
   }, 0);
 }
 

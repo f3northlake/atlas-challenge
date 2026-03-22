@@ -13,6 +13,7 @@ export const ExerciseSetSchema = z
     weightRight: z.number().min(0).max(2000),
     isTwoDumbbell: z.boolean(),
     points: z.number(), // client-computed; server re-validates and overwrites
+    multiplier: z.number().int().min(1).max(2).default(1),
   })
   .superRefine((set, ctx) => {
     if (NO_MIN_WEIGHT_CATEGORIES.has(set.category)) return;

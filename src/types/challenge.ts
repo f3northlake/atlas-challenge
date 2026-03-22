@@ -10,6 +10,7 @@ export interface ExerciseSet {
   weightRight: number;
   isTwoDumbbell: boolean;
   points: number;
+  multiplier: number; // 1 = normal, 2 = beatdown
 }
 
 export interface ExerciseCategoryConfig {
