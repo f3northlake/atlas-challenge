@@ -44,10 +44,12 @@ export const EXERCISES: Record<ExerciseCategory, ExerciseCategoryConfig> = {
   biceps: {
     label: 'Biceps — Curls',
     emoji: '💪',
-    types: ['Standard Curl', 'Hammer Curl', 'Concentration Curl', 'Other'],
+    types: ['Coupon Curl', 'Standard Curl', 'Hammer Curl', 'Concentration Curl', 'Other'],
     pointsFormula: 'standard',
-    isTwoDumbbell: true,
-    description: 'Any curl variation — each dumbbell scored separately',
+    isTwoDumbbell: false,
+    weightToggle: true,
+    fixedWeightTypes: { 'Coupon Curl': 30 },
+    description: 'Any curl variation — toggle single or double dumbbell',
   },
   triceps: {
     label: 'Triceps — Extension',

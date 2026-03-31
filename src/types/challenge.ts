@@ -20,6 +20,7 @@ export interface ExerciseCategoryConfig {
   pointsFormula: PointsFormula;
   isTwoDumbbell: boolean;
   fixedWeight?: number;        // if set, weight input is hidden and locked
+  fixedWeightTypes?: Record<string, number>; // specific types with fixed weights (e.g. Coupon Curl)
   weightToggle?: boolean;      // if true, PAX can toggle between 1 and 2 DBs
   description: string;
 }

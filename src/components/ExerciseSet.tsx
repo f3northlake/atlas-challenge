@@ -47,11 +47,15 @@ export default function ExerciseSet({ category, index, onRemove, canRemove, isBe
   const exerciseType = useWatch({ control, name: `${fieldBase}.exerciseType` as never }) as string;
   const multiplier = (useWatch({ control, name: `${fieldBase}.multiplier` as never }) as number) ?? 1;
 
+  const isPullup = config.pointsFormula === 'pullup';
+  const isFixedWeight = config.fixedWeight !== undefined;
+  const typeFixedWeight = config.fixedWeightTypes?.[exerciseType];
+
   const livePoints = scoreSet(
     Number(reps) || 0,
-    Number(weightLeft) || 0,
-    Number(weightRight) || 0,
-    isTwoDumbbell,
+    (typeFixedWeight ?? Number(weightLeft)) || 0,
+    (typeFixedWeight ?? Number(weightRight)) || 0,
+    typeFixedWeight !== undefined ? false : isTwoDumbbell,
     config.pointsFormula,
     Number(multiplier) || 1
   );
@@ -60,8 +64,13 @@ export default function ExerciseSet({ category, index, onRemove, canRemove, isBe
     setValue(`${fieldBase}.points` as never, livePoints as never);
   }, [livePoints, fieldBase, setValue]);
 
-  const isPullup = config.pointsFormula === 'pullup';
-  const isFixedWeight = config.fixedWeight !== undefined;
+  useEffect(() => {
+    if (typeFixedWeight !== undefined) {
+      setValue(`${fieldBase}.weightLeft` as never, typeFixedWeight as never);
+      setValue(`${fieldBase}.weightRight` as never, typeFixedWeight as never);
+      setValue(`${fieldBase}.isTwoDumbbell` as never, false as never);
+    }
+  }, [typeFixedWeight, fieldBase, setValue]);
 
   function adjustWeight(side: 'left' | 'right', delta: number) {
     const field = side === 'left' ? `${fieldBase}.weightLeft` : `${fieldBase}.weightRight`;
@@ -130,7 +139,7 @@ export default function ExerciseSet({ category, index, onRemove, canRemove, isBe
       </div>
 
       {/* Weight inputs */}
-      {!isPullup && !isFixedWeight && (
+      {!isPullup && !isFixedWeight && typeFixedWeight === undefined && (
         <>
           {config.weightToggle && (
             <div className="flex items-center gap-2 mb-2">
@@ -177,6 +186,10 @@ export default function ExerciseSet({ category, index, onRemove, canRemove, isBe
 
       {isFixedWeight && config.fixedWeight! > 0 && (
         <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Kewpon = 30 lbs (1 pt/rep)</p>
+      )}
+
+      {typeFixedWeight !== undefined && (
+        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">Coupon = {typeFixedWeight} lbs (1 pt/rep)</p>
       )}
 
       {isPullup && (
