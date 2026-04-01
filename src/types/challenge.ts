@@ -90,3 +90,18 @@ export interface PaxSubmission {
   tricepsPoints: number;
   legsPoints: number;
 }
+
+export interface AdminSubmission {
+  timestamp: string;
+  date: string;
+  paxName: string;
+  homeAO: string;
+  totalPoints: number;
+  corePoints: number;
+  chestPoints: number;
+  backPoints: number;
+  bicepsPoints: number;
+  tricepsPoints: number;
+  legsPoints: number;
+  sets: ExerciseSet[];
+}

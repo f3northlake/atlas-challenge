@@ -1,6 +1,6 @@
 import 'server-only';
 import { google } from 'googleapis';
-import type { SheetsRow, LeaderboardEntry, AOEntry, PaxSubmission, AOPaxEntry } from '@/types/challenge';
+import type { SheetsRow, LeaderboardEntry, AOEntry, PaxSubmission, AOPaxEntry, AdminSubmission, ExerciseSet } from '@/types/challenge';
 
 const SUBMISSIONS_RANGE = 'Submissions!A:L';
 const SUBMISSIONS_RANGE_DATA = 'Submissions!A1:L'; // read all rows, filter non-data below
@@ -157,6 +157,48 @@ export async function getPaxSubmissions(paxName: string): Promise<PaxSubmission[
   }
 
   return results.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+/** Return all raw submissions, newest-first, with sets parsed from JSON. */
+export async function getAllSubmissions(): Promise<AdminSubmission[]> {
+  const auth = getAuthClient();
+  const sheets = google.sheets({ version: 'v4', auth });
+
+  const response = await sheets.spreadsheets.values.get({
+    spreadsheetId: getSheetId(),
+    range: SUBMISSIONS_RANGE_DATA,
+  });
+
+  const rows = response.data.values ?? [];
+  const results: AdminSubmission[] = [];
+
+  for (const row of rows) {
+    if (!row[2] || !row[3] || isNaN(Number(row[4]))) continue;
+
+    let sets: ExerciseSet[] = [];
+    try {
+      sets = JSON.parse(String(row[11] ?? '[]'));
+    } catch {
+      sets = [];
+    }
+
+    results.push({
+      timestamp: String(row[0]),
+      date: String(row[1]),
+      paxName: String(row[2]).trim(),
+      homeAO: String(row[3]).trim(),
+      totalPoints: Number(row[4]) || 0,
+      corePoints: Number(row[5]) || 0,
+      chestPoints: Number(row[6]) || 0,
+      backPoints: Number(row[7]) || 0,
+      bicepsPoints: Number(row[8]) || 0,
+      tricepsPoints: Number(row[9]) || 0,
+      legsPoints: Number(row[10]) || 0,
+      sets,
+    });
+  }
+
+  return results.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
 }
 
 /** Return all PAX aggregated for one AO, sorted by total points descending. */
