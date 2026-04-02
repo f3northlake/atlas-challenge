@@ -232,7 +232,7 @@ function WeightInput({ label, value, onAdjust, fieldName, register, onChange }: 
             onChange(isNaN(parsed) ? MIN_WEIGHT : Math.max(MIN_WEIGHT, parsed));
           }}
           placeholder="30"
-          className="flex-1 text-center border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500 rounded-md py-2 text-sm focus:outline-none focus:ring-2 focus:ring-f3yellow"
+          className="flex-1 min-w-0 text-center border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-500 rounded-md py-2 text-sm focus:outline-none focus:ring-2 focus:ring-f3yellow"
         />
         <button
           type="button"
