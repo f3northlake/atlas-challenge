@@ -2,8 +2,8 @@ import 'server-only';
 import { google } from 'googleapis';
 import type { SheetsRow, LeaderboardEntry, AOEntry, PaxSubmission, AOPaxEntry, AdminSubmission, ExerciseSet } from '@/types/challenge';
 
-const SUBMISSIONS_RANGE = 'Submissions!A:L';
-const SUBMISSIONS_RANGE_DATA = 'Submissions!A1:L'; // read all rows, filter non-data below
+const SUBMISSIONS_RANGE = 'Submissions!A:M';
+const SUBMISSIONS_RANGE_DATA = 'Submissions!A1:M'; // read all rows, filter non-data below
 
 function getAuthClient() {
   const raw = process.env.GOOGLE_SERVICE_ACCOUNT_JSON;
@@ -40,6 +40,7 @@ export async function appendSubmissionRow(row: SheetsRow): Promise<void> {
     row.tricepsPoints,
     row.legsPoints,
     row.rawSetsJson,
+    row.hasBeatdown ? 'TRUE' : 'FALSE',
   ];
 
   await sheets.spreadsheets.values.append({
@@ -195,6 +196,7 @@ export async function getAllSubmissions(): Promise<AdminSubmission[]> {
       tricepsPoints: Number(row[9]) || 0,
       legsPoints: Number(row[10]) || 0,
       sets,
+      hasBeatdown: String(row[12] ?? '').toUpperCase() === 'TRUE',
     });
   }
 

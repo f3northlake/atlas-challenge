@@ -13,7 +13,7 @@ interface ExerciseSetProps {
   index: number;
   onRemove: () => void;
   canRemove: boolean;
-  isBeatdown?: boolean;
+  hasBeatdown?: boolean;
 }
 
 const categoryFieldMap: Record<ExerciseCategory, keyof FormValues> = {
@@ -25,18 +25,9 @@ const categoryFieldMap: Record<ExerciseCategory, keyof FormValues> = {
   legs: 'legsSets',
 };
 
-const bdCategoryFieldMap: Record<ExerciseCategory, keyof FormValues> = {
-  core: 'bdCoreSets',
-  chest: 'bdChestSets',
-  back: 'bdBackSets',
-  biceps: 'bdBicepsSets',
-  triceps: 'bdTricepsSets',
-  legs: 'bdLegsSets',
-};
-
-export default function ExerciseSet({ category, index, onRemove, canRemove, isBeatdown = false }: ExerciseSetProps) {
+export default function ExerciseSet({ category, index, onRemove, canRemove, hasBeatdown = false }: ExerciseSetProps) {
   const config = EXERCISES[category];
-  const fieldBase = `${isBeatdown ? bdCategoryFieldMap[category] : categoryFieldMap[category]}.${index}` as const;
+  const fieldBase = `${categoryFieldMap[category]}.${index}` as const;
 
   const { register, setValue, control } = useFormContext<FormValues>();
 
@@ -45,8 +36,8 @@ export default function ExerciseSet({ category, index, onRemove, canRemove, isBe
   const weightRight = useWatch({ control, name: `${fieldBase}.weightRight` as never }) as number;
   const isTwoDumbbell = (useWatch({ control, name: `${fieldBase}.isTwoDumbbell` as never }) as unknown) as boolean;
   const exerciseType = useWatch({ control, name: `${fieldBase}.exerciseType` as never }) as string;
-  const multiplier = (useWatch({ control, name: `${fieldBase}.multiplier` as never }) as number) ?? 1;
 
+  const multiplier = hasBeatdown ? 2 : 1;
   const isPullup = config.pointsFormula === 'pullup';
   const isFixedWeight = config.fixedWeight !== undefined;
   const typeFixedWeight = config.fixedWeightTypes?.[exerciseType];
@@ -57,12 +48,8 @@ export default function ExerciseSet({ category, index, onRemove, canRemove, isBe
     (typeFixedWeight ?? Number(weightRight)) || 0,
     typeFixedWeight !== undefined ? false : isTwoDumbbell,
     config.pointsFormula,
-    Number(multiplier) || 1
+    multiplier
   );
-
-  useEffect(() => {
-    setValue(`${fieldBase}.points` as never, livePoints as never);
-  }, [livePoints, fieldBase, setValue]);
 
   useEffect(() => {
     if (typeFixedWeight !== undefined) {
@@ -96,8 +83,8 @@ export default function ExerciseSet({ category, index, onRemove, canRemove, isBe
       <div className="flex items-center justify-between mb-2 gap-2">
         <span className="text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wide">Set {index + 1}</span>
         <div className="flex items-center gap-2">
-          <span className={`font-bold text-sm rounded px-2 py-0.5 ${multiplier === 2 ? 'bg-f3yellow text-f3navy' : 'text-f3yellow bg-f3navy'}`}>
-            {livePoints} pts{multiplier === 2 ? ' ×2' : ''}
+          <span className={`font-bold text-sm rounded px-2 py-0.5 ${hasBeatdown ? 'bg-f3yellow text-f3navy' : 'text-f3yellow bg-f3navy'}`}>
+            {livePoints} pts{hasBeatdown ? ' ×2' : ''}
           </span>
           {canRemove && (
             <button

@@ -24,6 +24,7 @@ export function ptsPerRep(weightLbs: number): number {
  * @param weightRight   Weight of right dumbbell in lbs (ignored if !isTwoDumbbell)
  * @param isTwoDumbbell Whether both dumbbells are used (scored independently)
  * @param formula       'standard' or 'pullup' (2 pts/rep flat)
+ * @param multiplier    1 for normal, 2 for beatdown day
  */
 export function scoreSet(
   reps: number,
@@ -47,21 +48,27 @@ export function scoreSet(
   return base * multiplier;
 }
 
-/** Score an array of sets. */
-export function scoreSets(sets: ExerciseSet[]): number {
+/**
+ * Score an array of sets.
+ * @param multiplier  Apply this multiplier to every set (1 = normal, 2 = beatdown day)
+ */
+export function scoreSets(sets: ExerciseSet[], multiplier = 1): number {
   return sets.reduce((total, set) => {
     const formula = EXERCISES[set.category].pointsFormula;
-    return total + scoreSet(set.reps, set.weightLeft, set.weightRight, set.isTwoDumbbell, formula, set.multiplier ?? 1);
+    return total + scoreSet(set.reps, set.weightLeft, set.weightRight, set.isTwoDumbbell, formula, multiplier);
   }, 0);
 }
 
-/** Sum points for a specific category. */
-export function categoryPoints(sets: ExerciseSet[], category: ExerciseCategory): number {
-  return scoreSets(sets.filter((s) => s.category === category));
+/**
+ * Sum points for a specific category.
+ * @param multiplier  Apply this multiplier to every set (1 = normal, 2 = beatdown day)
+ */
+export function categoryPoints(sets: ExerciseSet[], category: ExerciseCategory, multiplier = 1): number {
+  return scoreSets(sets.filter((s) => s.category === category), multiplier);
 }
 
 /** Re-score a set in place (returns new points value). */
-export function rescore(set: Omit<ExerciseSet, 'points'>): number {
+export function rescore(set: ExerciseSet): number {
   const formula = EXERCISES[set.category].pointsFormula;
   return scoreSet(set.reps, set.weightLeft, set.weightRight, set.isTwoDumbbell, formula);
 }

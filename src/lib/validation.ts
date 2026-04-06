@@ -12,8 +12,6 @@ export const ExerciseSetSchema = z
     weightLeft: z.number().min(0).max(2000),
     weightRight: z.number().min(0).max(2000),
     isTwoDumbbell: z.boolean(),
-    points: z.number(), // client-computed; server re-validates and overwrites
-    multiplier: z.number().int().min(1).max(2).default(1),
   })
   .superRefine((set, ctx) => {
     if (NO_MIN_WEIGHT_CATEGORIES.has(set.category)) return;
@@ -49,6 +47,7 @@ export const SubmissionSchema = z.object({
     .array(ExerciseSetSchema)
     .min(1, 'At least one exercise set is required')
     .max(200, 'Too many sets'),
+  hasBeatdown: z.boolean().optional().default(false),
 });
 
 export type SubmissionInput = z.infer<typeof SubmissionSchema>;

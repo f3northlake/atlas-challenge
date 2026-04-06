@@ -9,7 +9,7 @@ export default async function SuccessPage({ searchParams }: SuccessPageProps) {
   const points = parseInt(params.points ?? '0', 10);
 
   return (
-    <div className="text-center py-12">
+    <div className="max-w-lg mx-auto text-center py-12">
       <div className="text-6xl mb-4">💪</div>
       <h1 className="text-3xl font-black text-f3navy dark:text-white mb-2">EH Yeah!</h1>
       <p className="text-gray-600 mb-1">Your points have been recorded.</p>

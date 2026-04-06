@@ -9,8 +9,6 @@ export interface ExerciseSet {
   weightLeft: number;
   weightRight: number;
   isTwoDumbbell: boolean;
-  points: number;
-  multiplier: number; // 1 = normal, 2 = beatdown
 }
 
 export interface ExerciseCategoryConfig {
@@ -47,6 +45,7 @@ export interface SheetsRow {
   tricepsPoints: number;
   legsPoints: number;
   rawSetsJson: string;
+  hasBeatdown: boolean;
 }
 
 export interface LeaderboardEntry {
@@ -104,4 +103,5 @@ export interface AdminSubmission {
   tricepsPoints: number;
   legsPoints: number;
   sets: ExerciseSet[];
+  hasBeatdown?: boolean;
 }

@@ -17,31 +17,21 @@ interface SetFormRow {
   weightLeft: number;
   weightRight: number;
   isTwoDumbbell: boolean;
-  points: number;
-  multiplier: number;
 }
 
 export interface FormValues {
   paxName: string;
   homeAO: string;
   date: string;
-  // Regular sets
   coreSets: SetFormRow[];
   chestSets: SetFormRow[];
   backSets: SetFormRow[];
   bicepsSets: SetFormRow[];
   tricepsSets: SetFormRow[];
   legsSets: SetFormRow[];
-  // Beatdown sets (2× points)
-  bdCoreSets: SetFormRow[];
-  bdChestSets: SetFormRow[];
-  bdBackSets: SetFormRow[];
-  bdBicepsSets: SetFormRow[];
-  bdTricepsSets: SetFormRow[];
-  bdLegsSets: SetFormRow[];
 }
 
-function makeDefaultSet(category: keyof typeof EXERCISES, multiplier = 1): SetFormRow {
+function makeDefaultSet(category: keyof typeof EXERCISES): SetFormRow {
   const config = EXERCISES[category];
   const defaultWeight = config.fixedWeight !== undefined ? config.fixedWeight : DEFAULT_WEIGHT;
   return {
@@ -52,8 +42,6 @@ function makeDefaultSet(category: keyof typeof EXERCISES, multiplier = 1): SetFo
     weightLeft: defaultWeight,
     weightRight: defaultWeight,
     isTwoDumbbell: config.isTwoDumbbell,
-    points: 0,
-    multiplier,
   };
 }
 
@@ -80,18 +68,11 @@ export default function ChallengeForm() {
       bicepsSets:  [makeDefaultSet('biceps')],
       tricepsSets: [makeDefaultSet('triceps')],
       legsSets:    [makeDefaultSet('legs')],
-      bdCoreSets:    [makeDefaultSet('core', 2)],
-      bdChestSets:   [makeDefaultSet('chest', 2)],
-      bdBackSets:    [makeDefaultSet('back', 2)],
-      bdBicepsSets:  [makeDefaultSet('biceps', 2)],
-      bdTricepsSets: [makeDefaultSet('triceps', 2)],
-      bdLegsSets:    [makeDefaultSet('legs', 2)],
     },
   });
 
   const { register, handleSubmit, control, formState: { errors } } = methods;
 
-  // Regular sets
   const coreSets    = useWatch({ control, name: 'coreSets' }) as ExerciseSet[];
   const chestSets   = useWatch({ control, name: 'chestSets' }) as ExerciseSet[];
   const backSets    = useWatch({ control, name: 'backSets' }) as ExerciseSet[];
@@ -99,52 +80,32 @@ export default function ChallengeForm() {
   const tricepsSets = useWatch({ control, name: 'tricepsSets' }) as ExerciseSet[];
   const legsSets    = useWatch({ control, name: 'legsSets' }) as ExerciseSet[];
 
-  // BD sets
-  const bdCoreSets    = useWatch({ control, name: 'bdCoreSets' }) as ExerciseSet[];
-  const bdChestSets   = useWatch({ control, name: 'bdChestSets' }) as ExerciseSet[];
-  const bdBackSets    = useWatch({ control, name: 'bdBackSets' }) as ExerciseSet[];
-  const bdBicepsSets  = useWatch({ control, name: 'bdBicepsSets' }) as ExerciseSet[];
-  const bdTricepsSets = useWatch({ control, name: 'bdTricepsSets' }) as ExerciseSet[];
-  const bdLegsSets    = useWatch({ control, name: 'bdLegsSets' }) as ExerciseSet[];
+  const allSets = [...coreSets, ...chestSets, ...backSets, ...bicepsSets, ...tricepsSets, ...legsSets];
+  const effectiveMultiplier = hasBeatdown ? 2 : 1;
 
-  const regularSets = [...coreSets, ...chestSets, ...backSets, ...bicepsSets, ...tricepsSets, ...legsSets];
-  const bdSets = hasBeatdown
-    ? [...bdCoreSets, ...bdChestSets, ...bdBackSets, ...bdBicepsSets, ...bdTricepsSets, ...bdLegsSets]
-    : [];
-  const allSets = [...regularSets, ...bdSets];
-
-  const corePoints    = categoryPoints(allSets, 'core');
-  const chestPoints   = categoryPoints(allSets, 'chest');
-  const backPoints    = categoryPoints(allSets, 'back');
-  const bicepsPoints  = categoryPoints(allSets, 'biceps');
-  const tricepsPoints = categoryPoints(allSets, 'triceps');
-  const legsPoints    = categoryPoints(allSets, 'legs');
+  const corePoints    = categoryPoints(allSets, 'core', effectiveMultiplier);
+  const chestPoints   = categoryPoints(allSets, 'chest', effectiveMultiplier);
+  const backPoints    = categoryPoints(allSets, 'back', effectiveMultiplier);
+  const bicepsPoints  = categoryPoints(allSets, 'biceps', effectiveMultiplier);
+  const tricepsPoints = categoryPoints(allSets, 'triceps', effectiveMultiplier);
+  const legsPoints    = categoryPoints(allSets, 'legs', effectiveMultiplier);
 
   async function onSubmit(data: FormValues) {
     setIsSubmitting(true);
     setSubmitError(null);
 
-    const regularFormSets = [
+    const formSets = [
       ...data.coreSets, ...data.chestSets, ...data.backSets,
       ...data.bicepsSets, ...data.tricepsSets, ...data.legsSets,
     ].filter((s) => s.reps > 0);
 
-    const bdFormSets = hasBeatdown
-      ? [
-          ...data.bdCoreSets, ...data.bdChestSets, ...data.bdBackSets,
-          ...data.bdBicepsSets, ...data.bdTricepsSets, ...data.bdLegsSets,
-        ].filter((s) => s.reps > 0)
-      : [];
-
-    const allFormSets = [...regularFormSets, ...bdFormSets];
-
-    if (allFormSets.length === 0) {
+    if (formSets.length === 0) {
       setSubmitError('Please enter at least one set with reps before submitting.');
       setIsSubmitting(false);
       return;
     }
 
-    const total = scoreSets(allFormSets as ExerciseSet[]);
+    const total = scoreSets(formSets as ExerciseSet[], effectiveMultiplier);
 
     try {
       const res = await fetch('/api/submit', {
@@ -154,7 +115,8 @@ export default function ChallengeForm() {
           paxName: data.paxName,
           homeAO: data.homeAO,
           date: data.date,
-          sets: allFormSets,
+          sets: formSets,
+          hasBeatdown,
         }),
       });
 
@@ -223,7 +185,7 @@ export default function ChallengeForm() {
         <div className="bg-f3navy rounded-xl p-4 mb-4 flex items-center justify-between gap-4">
           <div>
             <p className="font-black text-white text-sm">Did you do a Beatdown today?</p>
-            <p className="text-gray-400 text-xs mt-0.5">BD reps earn 2× points</p>
+            <p className="text-gray-400 text-xs mt-0.5">All your reps today earn 2× points</p>
           </div>
           <button
             type="button"
@@ -245,38 +207,20 @@ export default function ChallengeForm() {
             <li>30 lbs = 1 pt/rep &nbsp;|&nbsp; 40 lbs = 2 pts &nbsp;|&nbsp; 50 lbs = 3 pts</li>
             <li>Two-dumbbell exercises: each DB scored separately per rep</li>
             <li>Pull ups: 2 pts/rep flat</li>
-            <li>BD reps count for 2× points — log them separately below</li>
+            <li>Beatdown days: toggle YES above and all reps count 2×</li>
           </ul>
         </div>
 
-        {/* ── Beatdown section ── */}
-        {hasBeatdown && (
-          <>
-            <div className="flex items-center gap-2 mb-2">
-              <span className="font-black text-f3yellow text-sm uppercase tracking-wide">Beatdown Reps</span>
-              <span className="text-xs bg-f3yellow text-f3navy font-bold rounded px-2 py-0.5">2× Points</span>
-            </div>
-            {CATEGORIES.map((cat) => (
-              <ExerciseCategoryCard
-                key={`bd-${cat}`}
-                category={cat}
-                categoryPoints={categoryPoints(bdSets, cat)}
-                isBeatdown
-              />
-            ))}
-            <div className="border-t border-gray-200 dark:border-gray-700 my-4" />
-          </>
-        )}
-
-        {/* ── Regular section ── */}
+        {/* Exercise cards */}
         <h2 className="font-bold text-f3navy dark:text-gray-100 text-sm uppercase tracking-wide mb-2">
-          {hasBeatdown ? 'Personal Reps — 1× Points' : 'Log Your Reps'}
+          Log Your Reps
         </h2>
         {CATEGORIES.map((cat) => (
           <ExerciseCategoryCard
             key={cat}
             category={cat}
-            categoryPoints={categoryPoints(regularSets, cat)}
+            categoryPoints={categoryPoints(allSets, cat, effectiveMultiplier)}
+            hasBeatdown={hasBeatdown}
           />
         ))}
 

@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import type { AdminSubmission, ExerciseCategory } from '@/types/challenge';
 import { EXERCISES } from '@/lib/constants';
+import { scoreSet } from '@/lib/scoring';
 
 interface AdminSubmissionModalProps {
   submission: AdminSubmission;
@@ -28,6 +29,8 @@ export default function AdminSubmissionModal({ submission, onClose }: AdminSubmi
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [onClose]);
+
+  const multiplier = submission.hasBeatdown ? 2 : 1;
 
   const formattedDate = new Date(submission.date + 'T12:00:00').toLocaleDateString('en-US', {
     weekday: 'long', month: 'short', day: 'numeric',
@@ -68,6 +71,9 @@ export default function AdminSubmissionModal({ submission, onClose }: AdminSubmi
             </p>
             <p className="text-sm font-black text-f3navy dark:text-f3yellow mt-1">
               {submission.totalPoints.toLocaleString()} pts &nbsp;·&nbsp; {submission.sets.length} set{submission.sets.length !== 1 ? 's' : ''}
+              {submission.hasBeatdown && (
+                <span className="ml-2 text-xs bg-f3yellow text-f3navy font-bold px-2 py-0.5 rounded">BEATDOWN 2×</span>
+              )}
             </p>
           </div>
           <button
@@ -101,21 +107,24 @@ export default function AdminSubmissionModal({ submission, onClose }: AdminSubmi
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-gray-100 dark:divide-gray-700">
-                    {sets.map((set, i) => (
-                      <tr key={set.id ?? i} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
-                        <td className="px-3 py-2 text-gray-800 dark:text-gray-200">
-                          {set.exerciseType}
-                          {set.multiplier === 2 && (
-                            <span className="ml-1.5 text-xs bg-f3yellow/20 text-f3navy dark:text-f3yellow font-bold px-1 rounded">
-                              2×
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">{set.reps}</td>
-                        <td className="px-3 py-2 text-right text-gray-500 dark:text-gray-400">{formatWeight(set)}</td>
-                        <td className="px-3 py-2 text-right font-semibold text-f3navy dark:text-f3yellow">{set.points}</td>
-                      </tr>
-                    ))}
+                    {sets.map((set, i) => {
+                      const pts = scoreSet(
+                        set.reps,
+                        set.weightLeft,
+                        set.weightRight,
+                        set.isTwoDumbbell,
+                        EXERCISES[set.category].pointsFormula,
+                        multiplier
+                      );
+                      return (
+                        <tr key={set.id ?? i} className="hover:bg-gray-50 dark:hover:bg-gray-700/50">
+                          <td className="px-3 py-2 text-gray-800 dark:text-gray-200">{set.exerciseType}</td>
+                          <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">{set.reps}</td>
+                          <td className="px-3 py-2 text-right text-gray-500 dark:text-gray-400">{formatWeight(set)}</td>
+                          <td className="px-3 py-2 text-right font-semibold text-f3navy dark:text-f3yellow">{pts}</td>
+                        </tr>
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>

@@ -15,7 +15,7 @@ export default async function LeaderboardPage() {
   }
 
   return (
-    <>
+    <div className="max-w-lg mx-auto">
       <div className="mb-4 flex items-start justify-between">
         <div>
           <h1 className="text-2xl font-black text-f3navy dark:text-white">Leaderboard</h1>
@@ -36,6 +36,6 @@ export default async function LeaderboardPage() {
       ) : (
         <LeaderboardTable individuals={data.individuals} aos={data.aos} />
       )}
-    </>
+    </div>
   );
 }

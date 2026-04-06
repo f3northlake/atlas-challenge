@@ -17,22 +17,31 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { paxName, homeAO, date, sets } = parsed.data;
+    const { paxName, homeAO, date, sets, hasBeatdown } = parsed.data;
+    const multiplier = hasBeatdown ? 2 : 1;
 
     // Re-compute all points server-side — never trust client-computed values
     const scoredSets: ExerciseSet[] = sets.map((set) => ({
-      ...set,
-      points: scoreSet(
+      id: set.id,
+      category: set.category,
+      exerciseType: set.exerciseType,
+      reps: set.reps,
+      weightLeft: set.weightLeft,
+      weightRight: set.weightRight,
+      isTwoDumbbell: set.isTwoDumbbell,
+    }));
+
+    const totalPoints = scoredSets.reduce((sum, set) => {
+      return sum + scoreSet(
         set.reps,
         set.weightLeft,
         set.weightRight,
         set.isTwoDumbbell,
         EXERCISES[set.category].pointsFormula,
-        set.multiplier ?? 1
-      ),
-    }));
+        multiplier
+      );
+    }, 0);
 
-    const totalPoints = scoredSets.reduce((sum, s) => sum + s.points, 0);
     const now = new Date();
 
     const row: SheetsRow = {
@@ -41,13 +50,14 @@ export async function POST(request: NextRequest) {
       paxName,
       homeAO,
       totalPoints,
-      corePoints: categoryPoints(scoredSets, 'core'),
-      chestPoints: categoryPoints(scoredSets, 'chest'),
-      backPoints: categoryPoints(scoredSets, 'back'),
-      bicepsPoints: categoryPoints(scoredSets, 'biceps'),
-      tricepsPoints: categoryPoints(scoredSets, 'triceps'),
-      legsPoints: categoryPoints(scoredSets, 'legs'),
+      corePoints: categoryPoints(scoredSets, 'core', multiplier),
+      chestPoints: categoryPoints(scoredSets, 'chest', multiplier),
+      backPoints: categoryPoints(scoredSets, 'back', multiplier),
+      bicepsPoints: categoryPoints(scoredSets, 'biceps', multiplier),
+      tricepsPoints: categoryPoints(scoredSets, 'triceps', multiplier),
+      legsPoints: categoryPoints(scoredSets, 'legs', multiplier),
       rawSetsJson: JSON.stringify(scoredSets),
+      hasBeatdown: hasBeatdown ?? false,
     };
 
     await appendSubmissionRow(row);
