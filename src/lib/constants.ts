@@ -2,12 +2,12 @@ import type { ExerciseCategory, ExerciseCategoryConfig } from '@/types/challenge
 
 // Update this list with actual F3 Northlake AO names before launch
 export const AO_LIST = [
-  'Black Ops',
   'Dog Pound',
   'Eagles Nest',
   'Hacksaw',
   'Hurt Locker',
   'The Frontier',
+  'The Brier Patch',
   'The Quad',
   'The Reaper',
   'The Sandlot',
